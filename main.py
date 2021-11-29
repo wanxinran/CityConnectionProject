@@ -1,21 +1,49 @@
-import os.path
-import numpy as np
+import sys
 
-def getFileData():
-        graphFile = open('small_test.txt', "r")
-        lines = graphFile.readlines()
-        edgeID = []
-        startID = []
-        endID = []
-        length = []
-        for x in lines:
-            edgeID.append(x.split(' ')[0])
-            startID.append(x.split(' ')[1])
-            endID.append(x.split(' ')[2])
-            length.append(x.split(' ')[3])
-        graphFile.close()
-        return edgeID, startID, endID, length
+EDGE_ID = 0
+START_NODE = 1
+END_NODE = 2
+LENGTH = 3
 
-if __name__ == '__main__':
-    file_data = getFileData()
-    print file_data
+
+def stringToInt(edge):
+    for i in range(len(edge) - 1):
+        edge[i] = int(edge[i])
+    edge[3] = float(edge[3])
+    return edge
+
+def main():
+    edges = []
+
+    with open('small_test.txt') as f:
+        for line in f:
+            edges.append(line.split(" "))
+
+    vert_count = 0
+    for edge in edges:
+        stringToInt(edge)
+        if edge[START_NODE] >= vert_count or edge[END_NODE] >= vert_count:
+            if edge[START_NODE] > edge[END_NODE]:
+                vert_count = edge[START_NODE]
+            else:
+                vert_count = edge[END_NODE]
+
+
+    print(vert_count)
+
+    graph = {}
+
+    for edge in edges:
+        if edge[START_NODE] not in graph:
+            graph[edge[START_NODE]] = []
+        if edge[END_NODE] not in graph:
+            graph[edge[END_NODE]] = []
+
+        graph[edge[START_NODE]].append([edge[EDGE_ID],edge[END_NODE],edge[LENGTH]])
+
+    print(graph)
+
+    #return graph
+
+main()
+
