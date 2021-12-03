@@ -1,5 +1,8 @@
 import sys
 
+'''
+Class for Edge object.
+'''
 class Edge:
     id: int
     startNode: int
@@ -18,6 +21,9 @@ class Edge:
     def __str__(self) -> str:
         return '{} {} {} {}'.format(self.id, self.startNode, self.endNode, self.weight)
 
+'''
+Class includes graph representation and algorithms for MSP.
+'''
 class CityConnections:
     def load(file):
         E = []
@@ -32,6 +38,7 @@ class CityConnections:
                     if edge.endNode not in V:
                         V.append(edge.endNode)
                     E.append(edge)
+
         return V,E
     
     def write(edges, file, comments:list=[]):
@@ -71,12 +78,27 @@ class CityConnections:
         return G, G_id
     
     def implementation1(V, E, debug=False):
+        '''
+        Graph representation: adjacency matrix
+        Algorithm for MSP: Prim's
+        Data structure used for the algorithm: matrix
+        '''
         G, G_ID = CityConnections.toAdjacencyMatrix(V,E)
         MST = CityConnections.primsMST(G, G_ID, V, debug=debug)
         return MST
+    
+    def implementation2(V, E):
+        '''
+        Graph representation: two lists - V and E
+        Algorithm for MSP: Kruskal's
+        Data structure used for the algorithm: disjoint set
+        '''
+        MST = CityConnections.kruskalMST(V, E)
+        return MST
             
     def primsMST(G, G_ID, V, INF = 99999999999, debug=False):
-        '''Accepts an NxN adjacency matrix G.
+        '''
+        Accepts an NxN adjacency matrix G.
         Additionally an NxN matrix of edge ids with size NxN, an a list V of node ids should be supplied.
 
         Time complexity: O(E log V)'''
@@ -116,15 +138,84 @@ class CityConnections:
 
     def totalWeight(E: list):
         return sum(e.weight for e in E)
-
+    
+    def kruskalMST(V, E):
+        '''
+        Input: list of vertices, and list of Edges
+        Output: a list of MST using Kruskal's algorithm.
+        Runtime: O(E log V) using disjoint set.
+        '''
+        
+        # define some functions to use
+        def findParent(parent, i):
+            '''
+            Find the parent node for node i.
+            '''
+            if parent[i] == i:
+                return i
+            else:
+                return findParent(parent, parent[i])
+            
+        def unionSets(parent, rank, x, y):
+            '''
+            Union two sets of x and y
+            '''
+            xr = findParent(parent, x)
+            yr = findParent(parent, y)
+            if rank[xr] < rank[yr]:
+                parent[xr] = yr
+            elif rank[yr] > rank[xr]:
+                parent[yr] = xr
+            else:
+                parent[yr] = xr
+                rank[xr] += 1
+        
+        MSP = []
+        i, edgeCounter = 0, 0
+        
+        # 1) sort all edges in non-decreasing order
+        E = sorted(E, key=lambda edge: edge.weight)
+        
+        parent = []
+        rank = []
+        
+        # Create sets to be used later for disjoint sets
+        for n in range(len(V)):
+            parent.append(n)
+            rank.append(0)
+        
+        # 2) Go through every edge in sorted order
+        #   a) If adding an edge doesn't create a cycle: add edge to MST
+        while edgeCounter < len(V) - 1:
+            u, v = E[i].startNode, E[i].endNode
+            x = findParent(parent, u)
+            y = findParent(parent, v)
+            
+            if x != y:
+                edgeCounter += 1
+                MSP.append(E[i])
+                unionSets(parent, rank, x, y)
+            i += 1
+                
+        return MSP
+            
+            
+        
 
 if __name__ == '__main__':
     if (len(sys.argv[1:]) == 2):
         inputFile, outputFile = sys.argv[1], sys.argv[2]
-        V,E = CityConnections.load('./input.txt')
-        MST = CityConnections.implementation1(V,E)
-        total = sum(e.weight for e in MST)
-        CityConnections.write(MST, outputFile, ['Total: {}'.format(total)])
+        V,E = CityConnections.load(inputFile)
+        # 1st implementation
+        MST1 = CityConnections.implementation1(V,E)
+        total = CityConnections.totalWeight(MST1)
+        CityConnections.write(MST1, outputFile, ['Total: {}'.format(total)])
+        
+        # 2nd implementation
+        MST2 = CityConnections.implementation2(V, E)
+        total = CityConnections.totalWeight(MST2)
+        CityConnections.write(MST2, outputFile, ['Total: {}'.format(total)])
+        
     else:
         print('Need input file and output file arguments', sys.argv[1:])
 
