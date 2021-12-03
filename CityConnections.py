@@ -76,6 +76,16 @@ class CityConnections:
             G_id[x][y] = edge.id
             G_id[y][x] = edge.id
         return G, G_id
+
+    def implementation3(V,E, debug=False):
+        '''
+        Graph representation: adjacency list
+        Algorithm for MSP: Prim's
+        Data structure used for the algorithm: dict
+        '''
+        G = CityConnections.toAdjacencyList(E)
+        MST = CityConnections.primsMST2(G, debug=debug)
+        return MST
     
     def implementation1(V, E, debug=False):
         '''
@@ -87,13 +97,13 @@ class CityConnections:
         MST = CityConnections.primsMST(G, G_ID, V, debug=debug)
         return MST
     
-    def implementation2(V, E):
+    def implementation2(V, E, debug=False):
         '''
         Graph representation: two lists - V and E
         Algorithm for MSP: Kruskal's
         Data structure used for the algorithm: disjoint set
         '''
-        MST = CityConnections.kruskalMST(V, E)
+        MST = CityConnections.kruskalMST(V, E, debug=debug)
         return MST
             
     def primsMST(G, G_ID, V, INF = 99999999999, debug=False):
@@ -115,7 +125,7 @@ class CityConnections:
         output = [None] * (n-1)
         while (numEdges < n-1):
             
-            if (debug and numEdges % 100 == 0): print('{}%'.format(numEdges/(n-1)*100))
+            if (debug and numEdges % 1000 == 0): print('{}%'.format(numEdges/(n-1)*100))
             # 1) For every vertex, find all adjacent vertices
             # 2) Calculate distance from vertex
             #    a) If vertex already previously selected discard result
@@ -135,11 +145,12 @@ class CityConnections:
             selected[y] = True
             numEdges += 1
         return output
+        
 
     def totalWeight(E: list):
         return sum(e.weight for e in E)
     
-    def kruskalMST(V, E):
+    def kruskalMST(V, E, debug=False):
         '''
         Input: list of vertices, and list of Edges
         Output: a list of MST using Kruskal's algorithm.
@@ -178,15 +189,22 @@ class CityConnections:
         
         parent = []
         rank = []
+
+        if debug: print('{}%'.format(100*len(E)/(len(E)+len(V)+len(V)-1)))
         
         # Create sets to be used later for disjoint sets
         for n in range(len(V)):
+            if debug and n%1000==0: print('{}%'.format(100*(len(E)+n)/(len(E)+len(V)+len(V)-1)))
+
             parent.append(n)
             rank.append(0)
+
         
         # 2) Go through every edge in sorted order
         #   a) If adding an edge doesn't create a cycle: add edge to MST
         while edgeCounter < len(V) - 1:
+            if debug and edgeCounter%1000==0: print('{}%'.format(100*(len(E)+len(V)+edgeCounter)/(len(E)+len(V)+len(V)-1)))
+
             u, v = E[i].startNode, E[i].endNode
             x = findParent(parent, u)
             y = findParent(parent, v)

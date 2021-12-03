@@ -15,16 +15,27 @@ def timeImplementation(V,E,implementation, debug=False):
 def compareImplementations(datasetsPath, debug=False):
     files = filesInDirectory(datasetsPath)
     for file in files:
+        print('Loading: {}'.format(file))
         V,E = CityConnections.load('./{}/{}'.format(datasetsPath,file))
         print('{} - {} Verticies, {} Edges'.format(file, len(V),len(E)))
+        print('Prims Implementation')
         MST,dt = timeImplementation(V,E,CityConnections.implementation1, debug)
         total = CityConnections.totalWeight(MST)
-        output = '''Prims
-    MST Edges: {}
-    Total Weight: {}
-    Total Time: {} seconds
-    '''.format(len(MST), total, dt)
+        output = '''\tPrims
+\tMST Edges: {}
+\tTotal Weight: {}
+\tTotal Time: {} seconds'''.format(len(MST), total, dt)
         print(output)
+
+        print('Kruskals Implementation')
+        MST,dt = timeImplementation(V,E,CityConnections.implementation2, debug)
+        total = CityConnections.totalWeight(MST)
+        output = '''\tKruskals
+\tMST Edges: {}
+\tTotal Weight: {}
+\tTotal Time: {} seconds'''.format(len(MST), total, dt)
+        print(output)
+        
             
 
     
