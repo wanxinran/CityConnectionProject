@@ -70,12 +70,12 @@ class CityConnections:
             G_id[y][x] = edge.id
         return G, G_id
     
-    def implementation1(V, E):
+    def implementation1(V, E, debug=False):
         G, G_ID = CityConnections.toAdjacencyMatrix(V,E)
-        MST = CityConnections.primsMST(G, G_ID, V)
+        MST = CityConnections.primsMST(G, G_ID, V, debug=debug)
         return MST
             
-    def primsMST(G, G_ID, V, INF = 99999999999):
+    def primsMST(G, G_ID, V, INF = 99999999999, debug=False):
         '''Accepts an NxN adjacency matrix G.
         Additionally an NxN matrix of edge ids with size NxN, an a list V of node ids should be supplied.
 
@@ -90,9 +90,10 @@ class CityConnections:
         selected[0] = True
 
         #MST output collection
-        output = []
-
+        output = [None] * (n-1)
         while (numEdges < n-1):
+            
+            if (debug and numEdges % 100 == 0): print('{}%'.format(numEdges/(n-1)*100))
             # 1) For every vertex, find all adjacent vertices
             # 2) Calculate distance from vertex
             #    a) If vertex already previously selected discard result
@@ -107,11 +108,14 @@ class CityConnections:
                             if minimum > G[i][j]:
                                 minimum = G[i][j]
                                 x,y = i,j     
-            output.append(Edge(G_ID[x][y], V[x],V[y],G[x][y]))
+            output[numEdges] = Edge(G_ID[x][y], V[x],V[y],G[x][y])
+            # output.append(Edge(G_ID[x][y], V[x],V[y],G[x][y]))
             selected[y] = True
             numEdges += 1
         return output
 
+    def totalWeight(E: list):
+        return sum(e.weight for e in E)
 
 
 if __name__ == '__main__':
